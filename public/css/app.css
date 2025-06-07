@@ -750,6 +750,15 @@ mark,
   background-color: #fcf8e3;
 }
 
+.img-paciente {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
 .list-unstyled {
   padding-left: 0;
   list-style: none;
