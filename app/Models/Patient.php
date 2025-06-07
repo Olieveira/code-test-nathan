@@ -7,19 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class Patient extends Model {
+class Patient extends Model
+{
 	use HasFactory;
 
 	/**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'user_id',
-        'name',
+	 * The attributes that are mass assignable.
+	 *
+	 * @var array
+	 */
+	protected $fillable = [
+		'user_id',
+		'name',
 		'gender',
-		'birthdate'
+		'birthdate',
+		'image_path'
 	];
 
 	protected $dates = [
@@ -27,7 +29,8 @@ class Patient extends Model {
 	];
 
 	// Retorna o plural de dia, mês ou ano
-	private function pluralizeInterval($number, $singular, $plural) {
+	private function pluralizeInterval($number, $singular, $plural)
+	{
 		if ($number > 1) {
 			return $number . ' ' . $plural;
 		}
@@ -35,13 +38,13 @@ class Patient extends Model {
 	}
 
 	// Imprime a idade em dias, meses ou anos
-	public function getAge() {
+	public function getAge()
+	{
 		$interval = $this->birthdate->diff(Carbon::now());
 
 		if ($interval->y > 0) {
 			return $this->pluralizeInterval($interval->format('%y'), 'ano', 'anos');
-		}
-		else if ($interval->m > 0) {
+		} else if ($interval->m > 0) {
 			return $this->pluralizeInterval($interval->format('%m'), 'mês', 'meses');
 		}
 
