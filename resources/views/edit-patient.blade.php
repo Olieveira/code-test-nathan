@@ -71,13 +71,10 @@
                         @enderror
                     </div>
 
-                    <!-- teste -->
-                    @if($patient->image_path)
-                    <div class="flex flex-column justify-content-center align-items-center">
-                        <p>Preview</p>
-                        <img class="img-paciente" src="{{ asset('storage/' . $patient->image_path) }}" alt="Foto do paciente">
+                    <div>
+                        <p id="text_preview">Preview</p>
+                        <img id="image_preview" class="img-paciente" src="{{ asset('storage/' . $patient->image_path) }}" alt="Foto do paciente">
                     </div>
-                    @endif
 
                     <button type="submit" class="btn btn-primary btn-block mt-4">Salvar</button>
                 </form>
@@ -89,6 +86,7 @@
 @push('scripts')
 <script>
     $(document).ready(() => {
+
         $('#birthdate').datepicker({
             language: 'pt-BR',
             autoHide: true,
@@ -96,6 +94,44 @@
         });
 
         $('#birthdate').datepicker('setEndDate', new Date());
+
+        // Listener para o preview
+        const input = document.getElementById('image_path');
+        const imgPreview = document.getElementById('image_preview');
+        const textPreview = document.getElementById('text_preview');
+        const currentImage = @json($patient -> image_path); // imagem atual
+
+        if (input && imgPreview) {
+
+            if (currentImage) {
+                textPreview.style.display = 'block';
+                imgPreview.src = '/storage/' + currentImage;
+                imgPreview.style.display = 'block';
+            } else {
+                textPreview.style.display = 'none';
+                imgPreview.src = '';
+                imgPreview.style.display = 'none';
+            }
+
+            // atualiza o preview
+            input.addEventListener('change', function(event) {
+                const file = event.target.files[0]
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgPreview.src = e.target.result;
+                        imgPreview.style.display = 'block';
+                        textPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imgPreview.src = '';
+                    imgPreview.style.display = 'none';
+                    textPreview.style.display = 'none';
+                }
+            })
+        };
     });
 </script>
 @endpush
