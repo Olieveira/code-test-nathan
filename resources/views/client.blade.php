@@ -66,7 +66,7 @@
         <div class="row mt-5 justify-content-center">
             <div class="col-12 col-lg-10">
                 @if(auth()->User()->Patient()->count() === 0)
-                Você não tem nenhum cachorr cadastrado.
+                Você não tem nenhum cachorro cadastrado.
                 @else
                 <table class="table" style="width: 100%">
                     <thead>

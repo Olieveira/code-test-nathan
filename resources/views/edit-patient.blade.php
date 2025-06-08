@@ -7,7 +7,7 @@
 
         <div class="row mt-6 justify-content-center">
             <div class="col-md-5 text-left">
-                <form action="{{ route('client.edit-patient', $patient->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('client.edit-patient', $patient ? $patient->id : null) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
                         <label for="name">Nome</label>

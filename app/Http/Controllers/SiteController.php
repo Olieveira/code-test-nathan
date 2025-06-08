@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 
 use App\Models\Patient;
@@ -74,14 +75,45 @@ class SiteController extends Controller
         return view('appointment', ['appointment' => $appointment]);
     }
 
-    public function getCreateAppointment()
+    public function getCreateAppointment($appointment_id = null)
     {
-        return view('create-appointment');
+        $user = auth()->User();
+        if (!$appointment_id) {
+            $appointment = Appointment::where(['doctor_id' => $user->type == "VET" ? $user->id : null, 'patient_id' => null])->first();
+
+            if (!$appointment) {
+                $appointment = Appointment::create([
+                    'doctor_id' => $user->type == "VET" ? $user->id : null,
+                    'patient_id' => 1,
+                    'status_id' => 1,
+                    'scheduled_at' => Carbon::now(),
+                ]);
+            }
+
+            return redirect()->route('client.create-appointment', $appointment->id);
+        } else {
+            $appointment = Appointment::where(['id' => $appointment_id])->first();
+        }
+
+        return view('create-appointment', ['appointment' => $appointment]);
     }
 
-    public function postCreateAppointment(Request $request)
+    public function postCreateAppointment($appointment_id, Request $request)
     {
-        // - TODO: Agendar a consulta
+        $appointment = Appointment::find($appointment_id);
+
+        $scheduledDate = $request->scheduled_at;
+        $scheduledTime = $request->time;
+        $scheduledDateTime = Carbon::createFromFormat('d/m/Y H:i', $scheduledDate . ' ' . $scheduledTime);
+        $patient_id = $request->patient ? $request->patient : 1;
+
+        $data = array_merge($request->except(['scheduled_time', 'closed_at', 'patient']), [
+            'scheduled_time' => $scheduledDateTime,
+            'patient_id' => $patient_id
+        ]);
+
+        $appointment->update($data);
+
         return redirect()->route('client')->with('toast', 'Consulta marcada com sucesso.');
     }
 

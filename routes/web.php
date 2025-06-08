@@ -31,8 +31,8 @@ Route::get('cliente', [SiteController::class, 'getClient'])->middleware('auth')-
 Route::get('editar-paciente/{patient_id?}', [SiteController::class, 'getEditPatient'])->name('client.edit-patient');
 Route::post('editar-paciente/{patient_id?}', [SiteController::class, 'postEditPatient'])->name('client.edit-patient');
 Route::get('remover-paciente/{patient_id}', [SiteController::class, 'getRemovePatient'])->name('client.remove-patient');
-Route::get('agendar-consulta', [SiteController::class, 'getCreateAppointment'])->name('client.create-appointment');
-Route::post('agendar-consulta', [SiteController::class, 'postCreateAppointment'])->name('client.create-appointment');
+Route::get('agendar-consulta/{appointment_id?}', [SiteController::class, 'getCreateAppointment'])->name('client.create-appointment');
+Route::post('agendar-consulta/{appointment_id?}', [SiteController::class, 'postCreateAppointment'])->name('client.create-appointment');
 Route::get('consulta/{appointment_id}', [SiteController::class, 'getAppointment'])->name('client.view-appointment');
 
 // Website
