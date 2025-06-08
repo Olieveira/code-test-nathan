@@ -44,9 +44,20 @@ class SiteController extends Controller
     public function postEditPatient($patient_id, Request $request)
     {
 
-        $patient = Patient::find($patient_id);
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'gender' => 'required|string',
+            'breed' => 'required|string',
+            'birthdate' => 'required|date_format:d/m/Y',
+            'image_path' => 'required|file|image'
+        ]);
 
-        $data = array_merge($request->except('birthdate'), ['birthdate' => Carbon::createFromFormat('d/m/Y', $request->birthdate)]);
+        $patient = Patient::find($patient_id);
+        $birthdate = Carbon::createFromFormat('d/m/Y', $validated['birthdate']);
+
+        $data = array_merge($request->except('birthdate'), [
+            'birthdate' => $birthdate
+        ]);
 
         // Tratamento do arquivo
         if ($request->hasFile('image_path')) {
@@ -99,11 +110,14 @@ class SiteController extends Controller
 
     public function postCreateAppointment($appointment_id, Request $request)
     {
-        $appointment = Appointment::find($appointment_id);
 
-        $scheduledDate = $request->scheduled_at;
-        $scheduledTime = $request->time;
-        $scheduledDateTime = Carbon::createFromFormat('d/m/Y H:i', $scheduledDate . ' ' . $scheduledTime);
+        $validated = $request->validate([
+            'scheduled_at' => 'required|date_format:d/m/Y',
+            'time' => 'required|date_format:H:i',
+            'patient' => 'required|integer',
+        ]);
+
+        $scheduledDateTime = Carbon::createFromFormat('d/m/Y H:i', $validated['scheduled_at'] . ' ' . $validated['time']);
         $patient_id = $request->patient ? $request->patient : 1;
 
         $data = array_merge($request->except(['scheduled_time', 'closed_at', 'patient']), [
@@ -111,6 +125,7 @@ class SiteController extends Controller
             'patient_id' => $patient_id
         ]);
 
+        $appointment = Appointment::find($appointment_id);
         $appointment->update($data);
 
         return redirect()->route('client')->with('toast', 'Consulta marcada com sucesso.');
