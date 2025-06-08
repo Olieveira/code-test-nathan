@@ -44,15 +44,25 @@
                         </tr>
                     </thead>
                     <tbody>
+
+                        @php
+                        $user = auth()->user();
+                        @endphp
+
+                        @foreach($user->Patients()->with('Appointments')->where('user_id', $user->id)->get() as $patient)
+                        @foreach ($patient->Appointments->whereNotNull('scheduled_time') as $appointment)
                         <tr>
-                            <td>FINALIZADA</td>
-                            <td>Scooby-Doo</td>
-                            <td>10/10/2020</td>
-                            <td>10:10</td>
+                            <td>{{ $appointment->status->status }}</td>
+                            <td>{{ $appointment->patient->name }}</td>
+                            <td>{{ \Carbon\Carbon::parse($appointment->scheduled_time)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($appointment->scheduled_time)->format('H:i') }}</td>
                             <td>
-                                <a href="{{ route('client.view-appointment', 1) }}">Abrir</a>
+                                <a href="{{ route('client.view-appointment', $appointment->id) }}">Abrir</a>
                             </td>
                         </tr>
+                        @endforeach
+                        @endforeach
+
                     </tbody>
                 </table>
             </div>
@@ -65,7 +75,7 @@
         <h3>Meus cachorros</h3>
         <div class="row mt-5 justify-content-center">
             <div class="col-12 col-lg-10">
-                @if(auth()->User()->Patient()->count() === 0)
+                @if(auth()->User()->Patients()->count() === 0)
                 Você não tem nenhum cachorro cadastrado.
                 @else
                 <table class="table" style="width: 100%">
@@ -80,7 +90,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (auth()->User()->Patient()->where('name', '!=', null)->get() as $patient)
+                        @foreach (auth()->User()->Patients()->where('name', '!=', null)->get() as $patient)
                         <tr>
                             <td class="align-content-center"><img src="{{ '/storage/' . $patient->image_path }}" class="radius" width="40"></td>
                             <td class="align-content-center">{{ $patient->name }}</td>

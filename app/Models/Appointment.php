@@ -24,4 +24,14 @@ class Appointment extends Model
         'scheduled_time',
         'closed_at'
     ];
+
+    public function Status()
+    {
+        return $this->belongsTo('App\Models\Status');
+    }
+
+    public function Patient()
+    {
+        return $this->belongsTo('App\Models\Patient');
+    }
 }

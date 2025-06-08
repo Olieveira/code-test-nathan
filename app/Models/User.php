@@ -39,7 +39,7 @@ class User extends Authenticatable {
         'birthdate',
 	];
 
-	public function Patient() {
+	public function Patients() {
 		return $this->hasMany('App\Models\Patient');
 	}
 }

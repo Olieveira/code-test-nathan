@@ -13,7 +13,7 @@
                         <label for="patient">Paciente</label>
                         <select name="patient" class="form-control @error('patient') is-invalid @enderror" id="patient">
                             <option value="">Selecione</option>
-                            @foreach(auth()->User()->Patient()->where('name', '!=', null)->get() as $patient)
+                            @foreach(auth()->User()->Patients()->where('name', '!=', null)->get() as $patient)
                             <option value="{{ $patient->id }}">{{ $patient->name }}</option>
                             @endforeach
                         </select>

@@ -13,7 +13,7 @@ class Status extends Model
         'status'
     ];
 
-    public function Appointment()
+    public function Appointments()
     {
         return $this->hasMany('App\Models\Appointment');
     }

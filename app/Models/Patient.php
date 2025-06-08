@@ -52,8 +52,13 @@ class Patient extends Model
         return $this->pluralizeInterval($interval->format('%d'), 'dia', 'dias');
     }
 
-    public function Appointment()
+    public function Appointments()
     {
         return $this->hasMany('App\Models\Appointment');
+    }
+
+    public function User()
+    {
+        return $this->belongsTo('App\Models\User');
     }
 }
