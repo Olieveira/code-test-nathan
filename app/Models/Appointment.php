@@ -68,4 +68,12 @@ class Appointment extends Model
     {
         return $this->belongsTo('App\Models\Patient');
     }
+    public function Doctor()
+    {
+        return $this->belongsTo('App\Models\User', 'doctor_id'); // vet
+    }
+    public function closedBy()
+    {
+        return $this->belongsTo('App\Models\User', 'doctor_id'); // resp. fechamento
+    }
 }

@@ -68,11 +68,10 @@ class SiteController extends Controller
         return redirect()->route('client')->with('toast', 'Paciente removido com sucesso.');
     }
 
-    public function getAppointment($appointment_id)
+    public function getAppointment($appointment_id = null)
     {
-        // - TODO: Retornar consulta
-        $appointment = null;
-        return view('appointment', ['appointment' => $appointment]);
+        $appointment = Appointment::with(['status', 'patient.user'])->findOrFail($appointment_id);
+        return view('appointment', compact('appointment'));
     }
 
     public function getCreateAppointment($appointment_id = null)
