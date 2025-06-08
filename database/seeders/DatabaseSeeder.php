@@ -57,7 +57,8 @@ class DatabaseSeeder extends Seeder
             'status_id' => 2,
             'scheduled_time' => '2024-06-01 14:30:00',
             'closed_by' => 2,
-            'closed_at' => '2024-06-02 11:30:00'
+            'closed_at' => '2024-06-02 11:30:00',
+            'notes' => 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nostrum, fugit!'
         ]);
     }
 }

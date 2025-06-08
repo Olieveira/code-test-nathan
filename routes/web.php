@@ -34,6 +34,7 @@ Route::get('remover-paciente/{patient_id}', [SiteController::class, 'getRemovePa
 Route::get('agendar-consulta/{appointment_id?}', [SiteController::class, 'getCreateAppointment'])->name('client.create-appointment');
 Route::post('agendar-consulta/{appointment_id?}', [SiteController::class, 'postCreateAppointment'])->name('client.create-appointment');
 Route::get('consulta/{appointment_id}', [SiteController::class, 'getAppointment'])->name('client.view-appointment');
+Route::post('consulta/{appointment_id}', [SiteController::class, 'postUpdateNotes'])->name('client.view-appointment');
 Route::get('horarios-disponiveis', [SiteController::class, 'getAvailableTimesAjax'])->name('appointments.available-times');
 
 // Website

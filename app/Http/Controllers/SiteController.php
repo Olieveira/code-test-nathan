@@ -85,6 +85,21 @@ class SiteController extends Controller
         return view('appointment', compact('appointment'));
     }
 
+    public function postUpdateNotes($appointment_id, Request $request)
+    {
+        if (auth()->user()->type !== 'VET') {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $validated = $request->validate([
+            'notes' => 'nullable|string'
+        ]);
+
+        $appointment = Appointment::findOrFail($appointment_id);
+        $appointment->update(['notes' => $validated['notes']]);
+        return redirect()->route('vet')->with('toast', 'Atendimento finalizado!');
+    }
+
     public function getCreateAppointment($appointment_id = null)
     {
         $user = auth()->User();
