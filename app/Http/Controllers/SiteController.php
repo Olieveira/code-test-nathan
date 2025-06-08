@@ -117,6 +117,13 @@ class SiteController extends Controller
         return redirect()->route('client')->with('toast', 'Consulta marcada com sucesso.');
     }
 
+    public function getAvailableTimesAjax(Request $request)
+    {
+        $date = $request->query('date');
+        $times = (new Appointment)->getAvailableTimes($date);
+        return response()->json($times);
+    }
+
     // ------------------ Veterinário ------------------
     public function getVet(Request $request)
     {

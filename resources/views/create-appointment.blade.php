@@ -39,10 +39,10 @@
                         <label for="time">Horário da consulta</label>
                         <select name="time" class="form-control @error('time') is-invalid @enderror" id="time">
                             <option value="">Selecione</option>
-                            <option value="08:00" disabled>08:00</option>
+                            <option value="08:00">08:00</option>
                             <option value="09:00">09:00</option>
                             <option value="10:00">10:00</option>
-                            <option value="11:00" disabled>11:00</option>
+                            <option value="11:00">11:00</option>
                             <option value="12:00">12:00</option>
                             <option value="13:00">13:00</option>
                             <option value="14:00">14:00</option>
@@ -70,26 +70,42 @@
 @push('scripts')
 <script>
     $(document).ready(() => {
-        $('#date').datepicker({
+        $('#scheduled_at').datepicker({
             language: 'pt-BR',
             autoHide: true,
             filter: function(date, view) {
+                // horario comercial
                 if ((date.getDay() === 0 || date.getDay() === 6)) {
                     return false;
                 }
             }
         });
 
-        $('#date').datepicker('setStartDate', new Date());
+        $('#scheduled_at').datepicker('setStartDate', new Date());
 
-        $('#date').change(() => {
+        $('#scheduled_at').change(() => {
             loadAppointmentTimes();
         });
 
+        // Chamada para verificação dos horarios disponiveis
         function loadAppointmentTimes() {
-            const date = $('#date').val();
-            // - TODO: Carregar os horários disponíveis via ajax de acordo com a data.
-            console.log(date);
+            const date = $('#scheduled_at').val();
+            if (!date) return;
+
+            $.getJSON("{{ route('appointments.available-times') }}", {
+                date: date
+            }, function(times) {
+                const $select = $('#time');
+                $select.empty();
+                $select.append('<option value="">Selecione</option>');
+
+                // nenhum horario disponivel
+                if (!Array.isArray(times)) times = [];
+
+                times.forEach(function(time) {
+                    $select.append(`<option value="${time}">${time}</option>`);
+                });
+            });
         }
 
         loadAppointmentTimes();
