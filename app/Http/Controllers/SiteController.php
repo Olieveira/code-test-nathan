@@ -96,36 +96,29 @@ class SiteController extends Controller
         ]);
 
         $appointment = Appointment::findOrFail($appointment_id);
-        $appointment->update(['notes' => $validated['notes']]);
-        return redirect()->route('vet')->with('toast', 'Atendimento finalizado!');
+
+        $appointment->update([
+            'notes' => $validated['notes'],
+            'closed_at' => now(),
+            'closed_by' => $appointment->doctor_id,
+            'status_id' => 2 // finalizado
+        ]);
+        return redirect()->route('vet')->with('toast', 'Atendimento finalizado com sucesso!');
     }
 
     public function getCreateAppointment($appointment_id = null)
     {
-        $user = auth()->User();
-        if (!$appointment_id) {
-            $appointment = Appointment::where(['doctor_id' => $user->type == "VET" ? $user->id : null, 'patient_id' => null])->first();
-
-            if (!$appointment) {
-                $appointment = Appointment::create([
-                    'doctor_id' => $user->type == "VET" ? $user->id : null,
-                    'patient_id' => 1,
-                    'status_id' => 1,
-                    'scheduled_at' => Carbon::now(),
-                ]);
-            }
-
-            return redirect()->route('client.create-appointment', $appointment->id);
-        } else {
-            $appointment = Appointment::where(['id' => $appointment_id])->first();
+        if ($appointment_id) {
+            $appointment = Appointment::findOrFail($appointment_id);
+            return view('create-appointment', compact('appointment'));
         }
 
-        return view('create-appointment', ['appointment' => $appointment]);
+        return view('create-appointment');
     }
 
-    public function postCreateAppointment($appointment_id, Request $request)
-    {
 
+    public function postCreateAppointment(Request $request, $appointment_id = null)
+    {
         $validated = $request->validate([
             'scheduled_at' => 'required|date_format:d/m/Y',
             'time' => 'required|date_format:H:i',
@@ -133,17 +126,26 @@ class SiteController extends Controller
         ]);
 
         $scheduledDateTime = Carbon::createFromFormat('d/m/Y H:i', $validated['scheduled_at'] . ' ' . $validated['time']);
-        $patient_id = $request->patient ? $request->patient : 1;
+        $user = auth()->user();
 
-        $data = array_merge($request->except(['scheduled_time', 'closed_at', 'patient']), [
+        $data = [
             'scheduled_time' => $scheduledDateTime,
-            'patient_id' => $patient_id
-        ]);
+            'patient_id' => $validated['patient'],
+            'doctor_id' => $user->type === 'VET' ? $user->id : null, // pendente logica para assumir atendimento
+            'closed_by' => $user->type === 'VET' ? $user->id : null,
+            'status_id' => 1,
+        ];
 
-        $appointment = Appointment::find($appointment_id);
-        $appointment->update($data);
+        if ($appointment_id) {
+            // Atualização
+            $appointment = Appointment::findOrFail($appointment_id);
+            $appointment->update($data);
+        } else {
+            // Criação
+            $appointment = Appointment::create($data);
+        }
 
-        return redirect()->route('client')->with('toast', 'Consulta marcada com sucesso.');
+        return redirect()->route('client')->with('toast', 'Consulta salva com sucesso.');
     }
 
     public function getAvailableTimesAjax(Request $request)

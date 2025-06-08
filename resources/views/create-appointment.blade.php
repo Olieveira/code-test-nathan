@@ -7,7 +7,7 @@
 
         <div class="row mt-6 justify-content-center">
             <div class="col-md-5 text-left">
-                <form action="{{ route('client.create-appointment', $appointment->id) }}" method="POST">
+                <form action="{{ route('client.create-appointment', $appointment->id ?? null) }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <label for="patient">Paciente</label>

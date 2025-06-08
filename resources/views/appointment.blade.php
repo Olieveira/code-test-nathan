@@ -45,14 +45,14 @@
                         <tr>
                             <th>Observações</th>
                             <td>
-                                @if(auth()->user()->type === 'VET')
-                                    <form action="{{ route('client.view-appointment', $appointment->id) }}" method="POST">
-                                        @csrf
-                                        <textarea name="notes" class="form-control" rows="3">{{ old('notes', $appointment->notes) }}</textarea>
-                                        <button type="submit" class="btn btn-primary btn-sm mt-2">Salvar observação</button>
-                                    </form>
+                                @if(auth()->user()->type === 'VET' && $appointment->status_id == 1)
+                                <form action="{{ route('client.view-appointment', $appointment->id) }}" method="POST">
+                                    @csrf
+                                    <textarea name="notes" class="form-control" rows="3">{{ old('notes', $appointment->notes) }}</textarea>
+                                    <button type="submit" class="btn btn-primary btn-sm mt-2">Salvar observação</button>
+                                </form>
                                 @else
-                                    {{ $appointment->notes ? $appointment->notes : 'Nenhuma observação!' }}
+                                {{ $appointment->notes ? $appointment->notes : 'Nenhuma observação!' }}
                                 @endif
                             </td>
                         </tr>

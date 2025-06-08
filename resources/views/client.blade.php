@@ -4,6 +4,10 @@
 <section class="py-6 border-bottom">
     <div class="container text-center">
         <h1>Olá {{ explode(' ', trim(auth()->User()->name))[0] }}!</h1>
+        <a href="{{ auth()->User()->type === 'VET' ? route('vet') : '/' }}"
+            class="btn btn-outline-info w-auto px-2 {{ auth()->User()->type === 'VET' ? 'inline-block' : 'd-none' }}">
+            Painel Veterinário
+        </a>
 
         <div class="row mt-6 justify-content-center">
             <div class="col-md-3">
@@ -92,7 +96,7 @@
                     <tbody>
                         @foreach (auth()->User()->Patients()->where('name', '!=', null)->get() as $patient)
                         <tr>
-                            <td class="align-content-center"><img src="{{ '/storage/' . $patient->image_path }}" class="radius" width="40"></td>
+                            <td class="align-content-center"><img src="{{ $patient->image_path ? '/storage/' . $patient->image_path : asset('images/dog.jpg') }}" class="radius" width="40"></td>
                             <td class="align-content-center">{{ $patient->name }}</td>
                             <td class="align-content-center">{{ $patient->getAge() }}</td>
                             <td class="align-content-center">{{ $patient->birthdate->format('d/m/Y') }}</td>
