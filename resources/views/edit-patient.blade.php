@@ -7,11 +7,11 @@
 
         <div class="row mt-6 justify-content-center">
             <div class="col-md-5 text-left">
-                <form action="{{ route('client.edit-patient', $patient ? $patient->id : null) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('client.edit-patient', $patient->id ?? null) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
                         <label for="name">Nome</label>
-                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name', $patient->name) }}">
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name', $patient ? $patient->name : '') }}">
                         @error('name')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -23,8 +23,8 @@
                         <label for="gender">Sexo</label>
                         <select name="gender" class="form-control @error('gender') is-invalid @enderror" id="gender">
                             <option value="">Selecione</option>
-                            <option @if(old('gender', $patient->gender) == 'M') selected @endif value="M">Macho</option>
-                            <option @if(old('gender', $patient->gender) == 'F') selected @endif value="F">Fêmea</option>
+                            <option @if(old('gender', $patient->gender ?? '') == 'M') selected @endif value="M">Macho</option>
+                            <option @if(old('gender', $patient->gender ?? '') == 'F') selected @endif value="F">Fêmea</option>
                         </select>
                         @error('gender')
                         <span class="invalid-feedback" role="alert">
@@ -41,7 +41,7 @@
                             ?>
                             <option value="">Selecione</option>
                             @foreach ($breeds as $breed)
-                            <option @if(old('breed', $patient->breed) == $breed) selected @endif value="{{ $breed }}">{{ $breed }}</option>
+                            <option @if(old('breed', $patient->breed ?? '') == $breed) selected @endif value="{{ $breed }}">{{ $breed }}</option>
                             @endforeach
                         </select>
                         @error('breed')
@@ -53,7 +53,7 @@
 
                     <div class="form-group">
                         <label for="birthdate">Data de nascimento</label>
-                        <input type="text" name="birthdate" autocomplete="off" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', $patient->birthdate ? $patient->birthdate->format('d/m/Y') : '') }}">
+                        <input type="text" name="birthdate" autocomplete="off" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', $patient?->birthdate ? $patient->birthdate->format('d/m/Y') : '') }}">
                         @error('birthdate')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -73,7 +73,7 @@
 
                     <div>
                         <p id="text_preview">Preview</p>
-                        <img id="image_preview" class="img-paciente" src="{{ asset('storage/' . $patient->image_path) }}" alt="Foto do paciente">
+                        <img id="image_preview" class="img-paciente" src="{{ $patient?->image_path ? asset('storage/' . $patient->image_path) : '' }}" alt="Foto do paciente">
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block mt-4">Salvar</button>
@@ -99,7 +99,7 @@
         const input = document.getElementById('image_path');
         const imgPreview = document.getElementById('image_preview');
         const textPreview = document.getElementById('text_preview');
-        const currentImage = @json($patient -> image_path); // imagem atual
+        const currentImage = @json($patient -> image_path ?? ''); // imagem atual
 
         if (input && imgPreview) {
 

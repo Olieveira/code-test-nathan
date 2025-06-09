@@ -25,38 +25,33 @@ class SiteController extends Controller
 
     public function getEditPatient($patient_id = null)
     {
-        $user = auth()->User();
-        if (!$patient_id) {
-            $patient = Patient::where(['user_id' => $user->id, 'name' => null])->first();
-
-            if (!$patient) {
-                $patient = Patient::create(['user_id' => $user->id]);
-            }
-
-            return redirect()->route('client.edit-patient', $patient->id);
+        if ($patient_id) {
+            $patient = Patient::findOrFail($patient_id);
+            return view('edit-patient', compact('patient'));
         } else {
-            $patient = Patient::where(['id' => $patient_id])->first();
+            $patient = null;
         }
 
-        return view('edit-patient', ['patient' => $patient]);
+        return view('edit-patient', compact('patient'));
     }
 
-    public function postEditPatient($patient_id, Request $request)
+    public function postEditPatient(Request $request, $patient_id = null)
     {
-
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string',
             'gender' => 'required|string',
             'breed' => 'required|string',
             'birthdate' => 'required|date_format:d/m/Y',
-            'image_path' => 'required|file|image'
-        ]);
+            'image_path' => $patient_id ? 'nullable|file|image' : 'required|file|image',
+        ];
 
-        $patient = Patient::find($patient_id);
-        $birthdate = Carbon::createFromFormat('d/m/Y', $validated['birthdate']);
+        $validated = $request->validate($rules);
 
         $data = array_merge($request->except('birthdate'), [
-            'birthdate' => $birthdate
+            'name' => $validated['name'],
+            'gender' => $validated['gender'],
+            'breed' => $validated['breed'],
+            'birthdate' => Carbon::createFromFormat('d/m/Y', $validated['birthdate'])
         ]);
 
         // Tratamento do arquivo
@@ -66,7 +61,15 @@ class SiteController extends Controller
             $data['image_path'] = $path;
         }
 
-        $patient->update($data);
+        if ($patient_id) {
+            // Atualiza
+            $patient = Patient::findOrFail($patient_id);
+            $patient->update($data);
+        } else {
+            // Cria
+            $data['user_id'] = auth()->user()->id;
+            $patient = Patient::create($data);
+        }
 
         return redirect()->route('client')->with('toast', 'Paciente salvo com sucesso.');
     }
@@ -87,7 +90,9 @@ class SiteController extends Controller
 
     public function postUpdateNotes($appointment_id, Request $request)
     {
-        if (auth()->user()->type !== 'VET') {
+        $user = auth()->user();
+
+        if ($user->type !== 'VET') {
             abort(403, 'Acesso não autorizado.');
         }
 
@@ -100,7 +105,8 @@ class SiteController extends Controller
         $appointment->update([
             'notes' => $validated['notes'],
             'closed_at' => now(),
-            'closed_by' => $appointment->doctor_id,
+            'doctor_id' => $user->id,
+            'closed_by' => $user->id,
             'status_id' => 2 // finalizado
         ]);
         return redirect()->route('vet')->with('toast', 'Atendimento finalizado com sucesso!');
@@ -131,22 +137,21 @@ class SiteController extends Controller
         $data = [
             'scheduled_time' => $scheduledDateTime,
             'patient_id' => $validated['patient'],
-            'doctor_id' => $user->type === 'VET' ? $user->id : null, // pendente logica para assumir atendimento
+            'doctor_id' => $user->type === 'VET' ? $user->id : null,
             'closed_by' => $user->type === 'VET' ? $user->id : null,
-            'status_id' => 1,
+            'status_id' => 1
         ];
 
         if ($appointment_id) {
-            // Atualização
             $appointment = Appointment::findOrFail($appointment_id);
             $appointment->update($data);
         } else {
-            // Criação
             $appointment = Appointment::create($data);
         }
 
         return redirect()->route('client')->with('toast', 'Consulta salva com sucesso.');
     }
+
 
     public function getAvailableTimesAjax(Request $request)
     {

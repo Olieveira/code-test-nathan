@@ -48,7 +48,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                         @php
                         $user = auth()->user();
                         @endphp

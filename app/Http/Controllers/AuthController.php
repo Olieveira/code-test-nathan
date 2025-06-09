@@ -68,6 +68,6 @@ class AuthController extends Controller {
 			}
 		}
 
-		return redirect()->route('index');
+		return redirect()->route('index')->with('toast', 'Sessão finalizada com sucesso!');
 	}
 }
