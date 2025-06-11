@@ -46,7 +46,7 @@
                             <th>Observações</th>
                             <td>
                                 @if(auth()->user()->type === 'VET' && $appointment->status_id == 1)
-                                <form action="{{ route('client.view-appointment', $appointment->id) }}" method="POST">
+                                <form action="{{ route('vet.edit-appointment', $appointment->id) }}" method="POST">
                                     @csrf
                                     <textarea name="notes" class="form-control" rows="3">{{ old('notes', $appointment->notes) }}</textarea>
                                     <button type="submit" class="btn btn-primary btn-sm mt-2">Salvar observação</button>

@@ -88,30 +88,6 @@ class SiteController extends Controller
         return view('appointment', compact('appointment'));
     }
 
-    public function postUpdateNotes($appointment_id, Request $request)
-    {
-        $user = auth()->user();
-
-        if ($user->type !== 'VET') {
-            abort(403, 'Acesso não autorizado.');
-        }
-
-        $validated = $request->validate([
-            'notes' => 'nullable|string'
-        ]);
-
-        $appointment = Appointment::findOrFail($appointment_id);
-
-        $appointment->update([
-            'notes' => $validated['notes'],
-            'closed_at' => now(),
-            'doctor_id' => $user->id,
-            'closed_by' => $user->id,
-            'status_id' => 2 // finalizado
-        ]);
-        return redirect()->route('vet')->with('toast', 'Atendimento finalizado com sucesso!');
-    }
-
     public function getCreateAppointment($appointment_id = null)
     {
         if ($appointment_id) {
@@ -170,8 +146,22 @@ class SiteController extends Controller
 
     public function getEditAppointment($appointment_id)
     {
-        // - TODO: Retornar consulta
-        $appointment = null;
-        return view('edit-appointment', ['appointment' => $appointment]);
+        $user = auth()->user();
+
+        if ($user->type !== 'VET') {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $appointment = Appointment::findOrFail($appointment_id);
+
+        $appointment->update([
+            'notes' => $appointment->notes,
+            'closed_at' => now(),
+            'doctor_id' => $user->id,
+            'closed_by' => $user->id,
+            'status_id' => 2 // finalizado
+        ]);
+
+        return redirect()->route('vet')->with('toast', 'Atendimento finalizado com sucesso!');
     }
 }
