@@ -82,7 +82,6 @@
         });
 
         $('#scheduled_at').datepicker('setStartDate', new Date());
-
         $('#scheduled_at').change(() => {
             loadAppointmentTimes();
         });
@@ -92,20 +91,31 @@
             const date = $('#scheduled_at').val();
             if (!date) return;
 
-            $.getJSON("{{ route('appointments.available-times') }}", {
-                date: date
-            }, function(times) {
-                const $select = $('#time');
-                $select.empty();
-                $select.append('<option value="">Selecione</option>');
+            $.ajax({
+                url: '/horarios-disponiveis?date=' + encodeURIComponent(date),
+                type: 'GET',
+                success: function(response) {
+                    const $select = $('#time');
+                    $select.empty();
 
-                // nenhum horario disponivel
-                if (!Array.isArray(times)) times = [];
+                    // nenhum horario disponivel
+                    if (response.length <= 0) {
+                        times = [];
+                        $select.append('<option value="">Nenhum horário disponível</option>');
+                    } else {
+                        $select.append('<option value="">Selecione</option>');
+                    }
 
-                times.forEach(function(time) {
-                    $select.append(`<option value="${time}">${time}</option>`);
-                });
-            });
+                    response.forEach(function(time) {
+                        $select.append(`<option value="${time}">${time}</option>`);
+                    });
+                },
+                error: function(e) {
+                    const $select = $('#time');
+                    $select.empty();
+                    toast('Não foi possível carregar os horários disponíveis. Tente novamente mais tarde.', 'error');
+                }
+            })
         }
 
         loadAppointmentTimes();

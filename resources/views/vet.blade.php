@@ -24,7 +24,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(App\Models\Appointment::with(['patient.user', 'status'])->get() as $appointment)
+                        @foreach($appointments as $appointment)
                         <tr>
                             <td>{{ $appointment->status->status }}</td>
                             <td>{{ $appointment->patient->user->name }}</td>

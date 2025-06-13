@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Patient;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class SiteController extends Controller
 {
@@ -64,6 +65,11 @@ class SiteController extends Controller
         if ($patient_id) {
             // Atualiza
             $patient = Patient::findOrFail($patient_id);
+
+            if ($request->hasFile('image_path') && $patient->image_path) {
+                Storage::disk('public')->delete($patient->image_path);
+            }
+
             $patient->update($data);
         } else {
             // Cria
@@ -77,6 +83,11 @@ class SiteController extends Controller
     public function getRemovePatient($patient_id)
     {
         $patient = Patient::find($patient_id);
+
+        if ($patient->image_path) {
+            Storage::disk('public')->delete($patient->image_path);
+        }
+
         $patient->delete();
 
         return redirect()->route('client')->with('toast', 'Paciente removido com sucesso.');
@@ -139,12 +150,11 @@ class SiteController extends Controller
     // ------------------ Veterinário ------------------
     public function getVet(Request $request)
     {
-        // - TODO: Retornar todos os agendamentos
-        $appointments = [];
-        return view('vet', ['appointments' => $appointments]);
+        $appointments = Appointment::with(['patient.user', 'status'])->get();
+        return view('vet', compact('appointments'));
     }
 
-    public function getEditAppointment($appointment_id)
+    public function postEditAppointment(Request $request, $appointment_id)
     {
         $user = auth()->user();
 
@@ -152,10 +162,14 @@ class SiteController extends Controller
             abort(403, 'Acesso não autorizado.');
         }
 
+        $validated = $request->validate([
+            'notes' => 'nullable|string'
+        ]);
+
         $appointment = Appointment::findOrFail($appointment_id);
 
         $appointment->update([
-            'notes' => $appointment->notes,
+            'notes' => $validated['notes'],
             'closed_at' => now(),
             'doctor_id' => $user->id,
             'closed_by' => $user->id,
